@@ -1,0 +1,32 @@
+/* Twitch Whisper Resizer v7 */
+
+.twr-handle {
+  position: fixed;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: #9146ff;
+  border-radius: 6px;
+  cursor: nwse-resize;
+  z-index: 2147483647;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  transition: background 0.15s, transform 0.1s;
+  user-select: none;
+}
+
+.twr-handle:hover {
+  background: #a970ff;
+  transform: scale(1.15);
+}
+
+.twr-handle.twr-active {
+  background: #bf94ff;
+  transform: scale(1.2);
+}
+
+body.twr-resizing * {
+  user-select: none !important;
+  cursor: nwse-resize !important;
+}
