@@ -54,9 +54,6 @@ const DIMENSION_PROPERTIES = [
 ];
 const MANAGED_PROPERTIES = DIMENSION_PROPERTIES.concat('position');
 const THREAD_SELECTOR = DOM_SELECTORS.thread.join(',');
-const HEADER_SELECTOR = DOM_SELECTORS.header.join(',');
-const TITLE_SELECTOR = DOM_SELECTORS.title.join(',');
-const COMPOSER_SELECTOR = DOM_SELECTORS.composer.join(',');
 const EXCLUDED_SELECTOR = DOM_SELECTORS.excludedAncestors.join(',');
 
 let settings = { ...DEFAULT_SETTINGS };
@@ -245,12 +242,13 @@ function createHandle(record) {
 }
 
 function getLimits() {
-  const minWidth = settings.minWidth;
-  const minHeight = settings.minHeight;
-  // A little breathing room is left around the dialog. User settings are still
-  // respected, but the current viewport can lower the effective maximum.
-  const maxWidth = Math.max(minWidth, Math.min(settings.maxWidth, Math.floor(window.innerWidth * 0.8)));
-  const maxHeight = Math.max(minHeight, Math.min(settings.maxHeight, Math.floor(window.innerHeight * 0.9)));
+  // On very small viewports, keeping the whole dialog visible takes priority
+  // over the configured minimum. In ordinary windows the configured min/max
+  // values are preserved.
+  const maxWidth = Math.max(1, Math.min(settings.maxWidth, Math.floor(window.innerWidth * 0.8)));
+  const maxHeight = Math.max(1, Math.min(settings.maxHeight, Math.floor(window.innerHeight * 0.9)));
+  const minWidth = Math.min(settings.minWidth, maxWidth);
+  const minHeight = Math.min(settings.minHeight, maxHeight);
   return { minWidth, minHeight, maxWidth, maxHeight };
 }
 
