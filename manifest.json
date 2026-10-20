@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
   "name": "Twitch Whisper Resizer",
-  "version": "1.0.0",
-  "description": "Делает окно шёпотов (whispers) на Twitch растягиваемым — тяни за угол!",
-  "permissions": [],
+  "version": "1.1.0",
+  "description": "Resize open Twitch whisper conversations and remember dimensions per user.",
+  "permissions": ["storage"],
+  "options_page": "options.html",
   "content_scripts": [
     {
       "matches": ["*://www.twitch.tv/*"],
@@ -13,8 +14,8 @@
     }
   ],
   "icons": {
-    "16":  "icons/icon16.png",
-    "48":  "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   }
 }
