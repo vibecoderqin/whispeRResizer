@@ -54,15 +54,14 @@
       <fieldset>
         <legend>Ручка изменения размера</legend>
         <div class="grid">
-          <label for="handleColor">Цвет</label>
+          <label for="handleColor">Цвет
+            <input id="handleColor" name="handleColor" type="color" aria-label="Цвет ручки">
+          </label>
           <label for="handleSize">Размер ручки (px)
             <input id="handleSize" name="handleSize" type="number" min="12" max="48" required>
           </label>
         </div>
-        <div class="inline">
-          <input id="handleColor" name="handleColor" type="color" aria-label="Цвет ручки">
-          <span class="hint">Ручка становится ярче при наведении на окно переписки.</span>
-        </div>
+        <p class="hint">Ручка становится ярче при наведении на окно переписки.</p>
       </fieldset>
 
       <fieldset>

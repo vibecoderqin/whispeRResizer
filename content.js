@@ -64,6 +64,7 @@ let savedSizes = {};
 const records = new Map();
 let activeThread = null;
 let dragState = null;
+let initialized = false;
 
 function normalizeSettings(candidate) {
   const input = candidate && typeof candidate === 'object' ? candidate : {};
@@ -331,6 +332,7 @@ function closeRecord(thread, commitDrag = false) {
 }
 
 function scanThreads() {
+  if (!initialized) return;
   const candidates = getThreadCandidates();
   const candidateSet = new Set(candidates);
 
@@ -341,7 +343,18 @@ function scanThreads() {
   }
 
   for (const thread of candidates) {
-    if (records.has(thread) || !isOpenThread(thread)) continue;
+    const existing = records.get(thread);
+    if (existing) {
+      // Twitch may rerender a thread's children without replacing the thread node.
+      // Recreate our handle if React removed it during that update.
+      if (!existing.handle || !existing.handle.isConnected || existing.handle.parentElement !== thread) {
+        existing.handle?.remove();
+        createHandle(existing);
+        updateHandleAppearance(existing.handle);
+      }
+      continue;
+    }
+    if (!isOpenThread(thread)) continue;
     openRecord(thread);
   }
 }
@@ -533,6 +546,7 @@ async function initialize() {
     savedSizes = {};
   }
 
+  initialized = true;
   scanThreads();
 }
 
