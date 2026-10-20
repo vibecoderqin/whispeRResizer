@@ -587,8 +587,9 @@ function startDrag(event, record) {
 function onPointerMove(event) {
   if (!dragState || event.pointerId !== dragState.pointerId) return;
   event.preventDefault();
-  const width = dragState.startW + dragState.startX - event.clientX;
-  const height = dragState.startH + dragState.startY - event.clientY;
+  // Handle is at the bottom-right corner: moving right/down enlarges the window.
+  const width = dragState.startW + event.clientX - dragState.startX;
+  const height = dragState.startH + event.clientY - dragState.startY;
   dragState.currentSize = applyThreadSize(dragState.record, { w: width, h: height });
 }
 
