@@ -91,3 +91,78 @@ resetButton.addEventListener('click', async () => {
 });
 
 loadSettings();
+
+
+const DEBUG_ENABLED_KEY = 'twrDebugEnabled';
+const DEBUG_LOG_PREFIX = 'twrDebugLog_';
+const debugCheckbox = document.getElementById('debug-enabled');
+const exportDebugButton = document.getElementById('export-debug');
+const clearDebugButton = document.getElementById('clear-debug');
+
+async function loadDebugState() {
+  try {
+    const data = await chrome.storage.local.get(DEBUG_ENABLED_KEY);
+    debugCheckbox.checked = Boolean(data[DEBUG_ENABLED_KEY]);
+  } catch {
+    showStatus('Не удалось прочитать состояние диагностики.', true);
+  }
+}
+
+debugCheckbox.addEventListener('change', async () => {
+  try {
+    await chrome.storage.local.set({ [DEBUG_ENABLED_KEY]: debugCheckbox.checked });
+    showStatus(debugCheckbox.checked
+      ? 'Диагностика включена. Воспроизведите проблему, затем экспортируйте JSON.'
+      : 'Диагностика выключена. Уже собранные логи можно экспортировать.');
+  } catch {
+    showStatus('Не удалось изменить состояние диагностики.', true);
+    debugCheckbox.checked = !debugCheckbox.checked;
+  }
+});
+
+exportDebugButton.addEventListener('click', async () => {
+  try {
+    // Allow a final throttled write from a content script to reach storage.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    const localData = await chrome.storage.local.get(null);
+    const syncData = await chrome.storage.sync.get(SETTINGS_KEY);
+    const sessions = Object.entries(localData)
+      .filter(([key, value]) => key.startsWith(DEBUG_LOG_PREFIX) && value && Array.isArray(value.entries))
+      .map(([key, value]) => ({ storageKey: key, ...value }));
+
+    const report = {
+      reportVersion: 1,
+      exportedAt: new Date().toISOString(),
+      extensionVersion: chrome.runtime.getManifest().version,
+      debugEnabled: Boolean(localData[DEBUG_ENABLED_KEY]),
+      settings: syncData[SETTINGS_KEY] || DEFAULTS,
+      sessionCount: sessions.length,
+      sessions
+    };
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = objectUrl;
+    link.download = 'twitch-whisper-resizer-debug-' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
+    showStatus('Экспорт готов: найдено сессий диагностики — ' + sessions.length + '.');
+  } catch (error) {
+    showStatus('Экспорт не удался: ' + (error && error.message ? error.message : String(error)), true);
+  }
+});
+
+clearDebugButton.addEventListener('click', async () => {
+  try {
+    const localData = await chrome.storage.local.get(null);
+    const keys = Object.keys(localData).filter((key) => key.startsWith(DEBUG_LOG_PREFIX));
+    if (keys.length) await chrome.storage.local.remove(keys);
+    showStatus('Удалено debug-сессий: ' + keys.length + '.');
+  } catch {
+    showStatus('Не удалось удалить debug-логи.', true);
+  }
+});
+
+loadDebugState();

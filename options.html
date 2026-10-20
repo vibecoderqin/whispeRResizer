@@ -17,6 +17,8 @@
     input[type="number"] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid GrayText; border-radius: 7px; background: Field; color: FieldText; font: inherit; }
     input[type="color"] { width: 56px; height: 38px; padding: 2px; border: 1px solid GrayText; border-radius: 7px; background: Field; }
     .inline { display: flex; align-items: center; gap: 14px; }
+    .check-row { display: flex; flex-direction: row; align-items: center; gap: 10px; }
+    .debug-actions { display: flex; flex-wrap: wrap; gap: 10px; }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
     button { padding: 10px 15px; border: 0; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; }
     #save { background: #9146ff; color: white; }
@@ -62,6 +64,19 @@
           </label>
         </div>
         <p class="hint">Ручка становится ярче при наведении на окно переписки.</p>
+      </fieldset>
+
+      <fieldset>
+        <legend>Диагностика (временно)</legend>
+        <label class="check-row" for="debug-enabled">
+          <input id="debug-enabled" type="checkbox">
+          Включить сбор отладочных событий
+        </label>
+        <p class="hint">Записываются только состояние DOM, найденные селекторы и события ресайза. Тексты сообщений и содержимое переписок не собираются. После воспроизведения ошибки экспортируйте JSON и приложите его к отчёту.</p>
+        <div class="debug-actions">
+          <button id="export-debug" type="button">Экспортировать debug JSON</button>
+          <button id="clear-debug" type="button">Удалить debug-логи</button>
+        </div>
       </fieldset>
 
       <fieldset>

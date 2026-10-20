@@ -1,9 +1,15 @@
 {
   "manifest_version": 3,
   "name": "Twitch Whisper Resizer",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Resize open Twitch whisper conversations and remember dimensions per user.",
   "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Twitch Whisper Resizer — настройки"
+  },
   "options_page": "options.html",
   "content_scripts": [
     {

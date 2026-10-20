@@ -1,9 +1,4 @@
-/* Twitch Whisper Resizer: styles are scoped to elements created by this extension. */
-
-.twr-managed-thread {
-  /* Only used when Twitch leaves the thread statically positioned; no layout shift. */
-}
-
+/* Twitch Whisper Resizer: only affects the handle injected into a detected conversation. */
 .twr-managed-thread > .twr-handle {
   position: absolute;
   left: 8px;
@@ -15,33 +10,31 @@
   height: var(--twr-handle-size, 24px);
   box-sizing: border-box;
   background: var(--twr-handle-color, #9146ff);
-  border: 1px solid rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   border-radius: 6px;
   cursor: nwse-resize;
   z-index: 2147483647;
-  opacity: 0.45;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-  transition: opacity 0.15s ease, background-color 0.15s ease, transform 0.1s ease;
+  opacity: 0.82;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.1s ease;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+  pointer-events: auto;
 }
-
 .twr-managed-thread:hover > .twr-handle,
 .twr-managed-thread > .twr-handle:hover,
 .twr-managed-thread > .twr-handle:focus-visible {
   opacity: 1;
-  filter: brightness(1.12);
+  filter: brightness(1.18);
   transform: scale(1.08);
 }
-
 .twr-managed-thread > .twr-handle.twr-active {
   opacity: 1;
-  filter: brightness(1.18);
+  filter: brightness(1.25);
   transform: scale(1.12);
   background: #bf94ff;
 }
-
 .twr-managed-thread.twr-being-resized,
 .twr-managed-thread.twr-being-resized * {
   user-select: none !important;
