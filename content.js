@@ -651,6 +651,13 @@ document.addEventListener('pointerdown', (event) => {
   if (record) activeThread = record.thread;
 }, true);
 
+// If Twitch repositions a window while dragging its header, keep the external
+// grip anchored to the window's upper-left corner.
+document.addEventListener('pointermove', (event) => {
+  if (dragState) return;
+  if (findRecordFromTarget(event.target)) positionAllHandles();
+}, true);
+
 document.addEventListener('focusin', (event) => {
   const record = findRecordFromTarget(event.target);
   if (record) activeThread = record.thread;
@@ -684,6 +691,7 @@ if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged)
       settings = normalizeSettings(changes[STORAGE_KEYS.settings].newValue);
       for (const record of records.values()) {
         updateHandleAppearance(record.handle);
+        positionHandle(record);
         const current = getCurrentSize(record.thread);
         const applied = applyThreadSize(record, current);
         if (Math.abs(current.w - applied.w) > 1 || Math.abs(current.h - applied.h) > 1) {
