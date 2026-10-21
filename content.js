@@ -60,7 +60,7 @@ const DIMENSION_PROPERTIES = [
   'width', 'min-width', 'max-width',
   'height', 'min-height', 'max-height'
 ];
-const MANAGED_PROPERTIES = DIMENSION_PROPERTIES.concat('position');
+const MANAGED_PROPERTIES = DIMENSION_PROPERTIES.concat('position', 'left', 'top');
 const PRIMARY_THREAD_SELECTOR = DOM_SELECTORS.primaryThread.join(',');
 const FALLBACK_THREAD_SELECTOR = DOM_SELECTORS.fallbackThread.join(',');
 const EXCLUDED_SELECTOR = DOM_SELECTORS.excludedAncestors.join(',');
@@ -410,7 +410,9 @@ function createHandle(record) {
     '</svg>';
 
   updateHandleAppearance(handle);
-  record.thread.appendChild(handle);
+  // Keep the grip outside the Twitch window so it cannot overlap the username
+  // or badges and cannot be clipped by the dialog's overflow settings.
+  document.body.appendChild(handle);
   record.handle = handle;
   handle.addEventListener('pointerdown', (event) => startDrag(event, record));
   handle.addEventListener('click', (event) => {
@@ -424,6 +426,22 @@ function createHandle(record) {
       activeThread = record.thread;
     }
   });
+}
+
+function positionHandle(record) {
+  const handle = record && record.handle;
+  const thread = record && record.thread;
+  if (!handle || !handle.isConnected || !thread || !thread.isConnected) return;
+
+  const rect = thread.getBoundingClientRect();
+  const size = settings.handleSize;
+  // Match the original layout: entirely outside, left of the upper-left corner.
+  handle.style.left = Math.round(rect.left - size - 4) + 'px';
+  handle.style.top = Math.round(rect.top + 2) + 'px';
+}
+
+function positionAllHandles() {
+  for (const record of records.values()) positionHandle(record);
 }
 
 function getLimits() {
@@ -536,17 +554,20 @@ function scanThreads() {
     const existing = records.get(thread);
     if (existing) {
       // React can replace children of the window while keeping the window node.
-      if (!existing.handle || !existing.handle.isConnected || existing.handle.parentElement !== thread) {
+      if (!existing.handle || !existing.handle.isConnected || existing.handle.parentElement !== document.body) {
         existing.handle?.remove();
         createHandle(existing);
         debugLog('handle-recreated', { reason: 'Twitch-rerendered-window-contents' });
       }
+      positionHandle(existing);
       continue;
     }
     const inspection = inspectThread(thread);
     if (!inspection.open) continue;
-    openRecord(thread, inspection);
+    const record = openRecord(thread, inspection);
+    if (record) positionHandle(record);
   }
+  positionAllHandles();
 }
 
 function findRecordFromTarget(target) {
@@ -566,6 +587,31 @@ function startDrag(event, record) {
   record.handle.classList.add('twr-active');
   record.thread.classList.add('twr-being-resized');
   const size = getCurrentSize(record.thread);
+  const computed = window.getComputedStyle(record.thread);
+  const position = computed.position;
+  const offsetParent = record.thread.offsetParent;
+  const rect = record.thread.getBoundingClientRect();
+  let startLeft;
+  let startTop;
+
+  if (position === 'fixed' || !offsetParent) {
+    startLeft = rect.left;
+    startTop = rect.top;
+  } else if (position === 'absolute') {
+    const parentRect = offsetParent.getBoundingClientRect();
+    startLeft = rect.left - parentRect.left - offsetParent.clientLeft + offsetParent.scrollLeft;
+    startTop = rect.top - parentRect.top - offsetParent.clientTop + offsetParent.scrollTop;
+  } else {
+    startLeft = Number.parseFloat(computed.left);
+    startTop = Number.parseFloat(computed.top);
+    if (!Number.isFinite(startLeft)) startLeft = 0;
+    if (!Number.isFinite(startTop)) startTop = 0;
+  }
+
+  // Freeze the initial position so the opposite (bottom-right) corner stays put.
+  record.thread.style.setProperty('left', startLeft + 'px', 'important');
+  record.thread.style.setProperty('top', startTop + 'px', 'important');
+
   dragState = {
     pointerId: event.pointerId,
     record,
@@ -574,6 +620,10 @@ function startDrag(event, record) {
     startY: event.clientY,
     startW: size.w,
     startH: size.h,
+    startLeft,
+    startTop,
+    fixedRight: rect.right,
+    fixedBottom: rect.bottom,
     currentSize: size
   };
 
@@ -587,10 +637,24 @@ function startDrag(event, record) {
 function onPointerMove(event) {
   if (!dragState || event.pointerId !== dragState.pointerId) return;
   event.preventDefault();
-  // Handle is at the bottom-right corner: moving right/down enlarges the window.
-  const width = dragState.startW + event.clientX - dragState.startX;
-  const height = dragState.startH + event.clientY - dragState.startY;
+  // Upper-left grip: moving left/up enlarges the window.
+  const width = dragState.startW + dragState.startX - event.clientX;
+  const height = dragState.startH + dragState.startY - event.clientY;
   dragState.currentSize = applyThreadSize(dragState.record, { w: width, h: height });
+
+  const thread = dragState.thread;
+  const rect = thread.getBoundingClientRect();
+  const rightDelta = rect.right - dragState.fixedRight;
+  const bottomDelta = rect.bottom - dragState.fixedBottom;
+  if (Math.abs(rightDelta) > 1) {
+    const left = Number.parseFloat(thread.style.left);
+    thread.style.setProperty('left', ((Number.isFinite(left) ? left : dragState.startLeft) - rightDelta) + 'px', 'important');
+  }
+  if (Math.abs(bottomDelta) > 1) {
+    const top = Number.parseFloat(thread.style.top);
+    thread.style.setProperty('top', ((Number.isFinite(top) ? top : dragState.startTop) - bottomDelta) + 'px', 'important');
+  }
+  positionHandle(dragState.record);
 }
 
 function onPointerUp(event) {
@@ -651,6 +715,12 @@ document.addEventListener('pointerdown', (event) => {
   if (record) activeThread = record.thread;
 }, true);
 
+// Keep the external grip aligned when Twitch moves a window by dragging its header.
+document.addEventListener('pointermove', (event) => {
+  if (dragState) return;
+  if (findRecordFromTarget(event.target)) positionAllHandles();
+}, true);
+
 // If Twitch repositions a window while dragging its header, keep the external
 // grip anchored to the window's upper-left corner.
 document.addEventListener('pointermove', (event) => {
@@ -684,6 +754,7 @@ function handleWindowResize() {
   }
 }
 window.addEventListener('resize', handleWindowResize);
+window.addEventListener('scroll', positionAllHandles, true);
 
 if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
   chrome.storage.onChanged.addListener((changes, areaName) => {

@@ -1,11 +1,9 @@
 /* Twitch Whisper Resizer: only affects the handle injected into a detected conversation. */
-.twr-managed-thread > .twr-handle {
-  position: absolute;
-  /* Anchor on the bottom-right corner; let the grip slightly overhang. */
-  left: auto;
-  top: auto;
-  right: 0;
-  bottom: 0;
+.twr-handle {
+  position: fixed;
+  /* Original placement: completely outside the window, at the upper-left. */
+  left: 0;
+  top: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +16,6 @@
   cursor: nwse-resize;
   z-index: 2147483647;
   opacity: 0.9;
-  transform: translate(35%, 35%);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
   transition: opacity 0.15s ease, filter 0.15s ease, transform 0.1s ease;
   user-select: none;
@@ -26,17 +23,16 @@
   touch-action: none;
   pointer-events: auto;
 }
-.twr-managed-thread:hover > .twr-handle,
-.twr-managed-thread > .twr-handle:hover,
-.twr-managed-thread > .twr-handle:focus-visible {
+.twr-handle:hover,
+.twr-handle:focus-visible {
   opacity: 1;
   filter: brightness(1.18);
-  transform: translate(35%, 35%) scale(1.08);
+  transform: scale(1.08);
 }
-.twr-managed-thread > .twr-handle.twr-active {
+.twr-handle.twr-active {
   opacity: 1;
   filter: brightness(1.25);
-  transform: translate(35%, 35%) scale(1.12);
+  transform: scale(1.12);
   background: #bf94ff;
 }
 .twr-managed-thread.twr-being-resized,
