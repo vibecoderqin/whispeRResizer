@@ -53,7 +53,6 @@ const DEFAULT_SETTINGS = Object.freeze({
   minHeight: 150,
   maxWidth: 1600,
   maxHeight: 1200,
-  handleColor: '#9146ff',
   handleSize: 24
 });
 const DIMENSION_PROPERTIES = [
@@ -97,9 +96,6 @@ function normalizeSettings(candidate) {
   result.maxWidth = clampNumber(result.maxWidth, result.minWidth, 3000, DEFAULT_SETTINGS.maxWidth);
   result.maxHeight = clampNumber(result.maxHeight, result.minHeight, 2400, DEFAULT_SETTINGS.maxHeight);
   result.handleSize = clampNumber(result.handleSize, 12, 48, DEFAULT_SETTINGS.handleSize);
-  result.handleColor = typeof input.handleColor === 'string' && /^#[0-9a-f]{6}$/i.test(input.handleColor)
-    ? input.handleColor
-    : DEFAULT_SETTINGS.handleColor;
   return result;
 }
 
@@ -399,16 +395,11 @@ function updateHandleAppearance(handle) {
 function createHandle(record) {
   const handle = document.createElement('div');
   handle.className = 'twr-handle';
-  handle.title = 'Потяни для изменения размера';
+  handle.title = 'Перетащите область для изменения размера';
   handle.setAttribute('role', 'button');
   handle.setAttribute('tabindex', '0');
   handle.setAttribute('aria-label', 'Изменить размер окна переписки');
   handle.setAttribute('aria-keyshortcuts', 'Ctrl+Shift+ArrowLeft Ctrl+Shift+ArrowRight Ctrl+Shift+ArrowUp Ctrl+Shift+ArrowDown');
-  handle.innerHTML =
-    '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">' +
-    '<path d="M1 11L11 1M1 6.5L6.5 1M5.5 11L11 5.5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>' +
-    '</svg>';
-
   updateHandleAppearance(handle);
   // Keep the grip outside the Twitch window so it cannot overlap the username
   // or badges and cannot be clipped by the dialog's overflow settings.
