@@ -1,40 +1,31 @@
-/* Twitch Whisper Resizer: only affects the handle injected into a detected conversation. */
+/* Невидимая область захвата для изменения размера окна переписки. */
 .twr-handle {
   position: fixed;
-  /* Original placement: completely outside the window, at the upper-left. */
   left: 0;
   top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: var(--twr-handle-size, 24px);
   height: var(--twr-handle-size, 24px);
   box-sizing: border-box;
-  background: var(--twr-handle-color, #9146ff);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: 6px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   cursor: nwse-resize;
   z-index: 2147483647;
-  opacity: 0.9;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
-  transition: opacity 0.15s ease, filter 0.15s ease, transform 0.1s ease;
+  opacity: 0;
+  box-shadow: none;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
   pointer-events: auto;
 }
-.twr-handle:hover,
+
 .twr-handle:focus-visible {
   opacity: 1;
-  filter: brightness(1.18);
-  transform: scale(1.08);
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
-.twr-handle.twr-active {
-  opacity: 1;
-  filter: brightness(1.25);
-  transform: scale(1.12);
-  background: #bf94ff;
-}
+
 .twr-managed-thread.twr-being-resized,
 .twr-managed-thread.twr-being-resized * {
   user-select: none !important;
