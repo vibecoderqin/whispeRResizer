@@ -15,7 +15,6 @@
     .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
     label { display: flex; flex-direction: column; gap: 6px; font-size: 0.94rem; }
     input[type="number"] { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid GrayText; border-radius: 7px; background: Field; color: FieldText; font: inherit; }
-    input[type="color"] { width: 56px; height: 38px; padding: 2px; border: 1px solid GrayText; border-radius: 7px; background: Field; }
     .inline { display: flex; align-items: center; gap: 14px; }
     .check-row { display: flex; flex-direction: row; align-items: center; gap: 10px; }
     .debug-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -31,7 +30,7 @@
 <body>
   <main>
     <h1>Twitch Whisper Resizer</h1>
-    <p>Настройте допустимый размер открытых окон переписки и внешний вид ручки. Настройки синхронизируются через Chrome.</p>
+    <p>Настройте допустимый размер открытых окон переписки и невидимую область перетаскивания. Настройки синхронизируются через Chrome.</p>
 
     <form id="settings-form">
       <fieldset>
@@ -54,16 +53,11 @@
       </fieldset>
 
       <fieldset>
-        <legend>Ручка изменения размера</legend>
-        <div class="grid">
-          <label for="handleColor">Цвет
-            <input id="handleColor" name="handleColor" type="color" aria-label="Цвет ручки">
-          </label>
-          <label for="handleSize">Размер ручки (px)
-            <input id="handleSize" name="handleSize" type="number" min="12" max="48" required>
-          </label>
-        </div>
-        <p class="hint">Ручка становится ярче при наведении на окно переписки.</p>
+        <legend>Область изменения размера</legend>
+        <label for="handleSize">Размер невидимой области перетаскивания (px)
+          <input id="handleSize" name="handleSize" type="number" min="12" max="48" required>
+        </label>
+        <p class="hint">Область не содержит значков или графики. Наведите курсор на область слева сверху от окна переписки — курсор покажет возможность изменения размера.</p>
       </fieldset>
 
       <fieldset>
@@ -81,7 +75,7 @@
 
       <fieldset>
         <legend>Клавиатура</legend>
-        <p>Сначала нажмите на нужное открытое окно, затем используйте <strong>Ctrl + Shift + стрелки</strong>: влево/вправо — ширина, вверх/вниз — высота, шаг 10 px. Комбинация не обрабатывается, когда фокус находится в поле ввода.</p>
+        <p>Чтобы изменить размер с клавиатуры, сначала нажмите на нужное окно, затем используйте <strong>Ctrl + Shift + стрелки</strong>: влево/вправо — ширина, вверх/вниз — высота, шаг 10 px. Комбинация не обрабатывается, когда фокус находится в поле ввода.</p>
       </fieldset>
 
       <div class="actions">
