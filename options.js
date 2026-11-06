@@ -7,7 +7,6 @@ const DEFAULTS = {
   minHeight: 150,
   maxWidth: 1600,
   maxHeight: 1200,
-  handleColor: '#9146ff',
   handleSize: 24
 };
 
@@ -22,7 +21,6 @@ function readSettings() {
     minHeight: Number(formData.get('minHeight')),
     maxWidth: Number(formData.get('maxWidth')),
     maxHeight: Number(formData.get('maxHeight')),
-    handleColor: String(formData.get('handleColor')),
     handleSize: Number(formData.get('handleSize'))
   };
 }
@@ -63,8 +61,7 @@ form.addEventListener('submit', async (event) => {
     values.minHeight < 100 || values.minHeight > 2000 ||
     values.maxWidth < 100 || values.maxWidth > 3000 ||
     values.maxHeight < 100 || values.maxHeight > 2400 ||
-    values.handleSize < 12 || values.handleSize > 48 ||
-    !/^#[0-9a-f]{6}$/i.test(values.handleColor)
+    values.handleSize < 12 || values.handleSize > 48
   ) {
     showStatus('Проверьте числовые значения и диапазоны полей.', true);
     return;
