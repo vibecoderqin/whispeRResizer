@@ -388,7 +388,6 @@ function applyPositioningFallback(thread) {
 
 function updateHandleAppearance(handle) {
   if (!handle) return;
-  handle.style.setProperty('--twr-handle-color', settings.handleColor);
   handle.style.setProperty('--twr-handle-size', settings.handleSize + 'px');
 }
 
